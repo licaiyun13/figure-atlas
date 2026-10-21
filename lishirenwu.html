@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前世人物志 · 你像哪位历史人物</title>
+<style>
+:root{
+  --paper:#f4eddc; --paper2:#efe6cf; --ink:#2b2622; --ink2:#4a4238;
+  --cinnabar:#a63a2e; --cinnabar2:#8e2f25; --gold:#a8834a; --gold2:#8a6a38;
+  --line:#d8c9a8; --jade:#3f5e58;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Noto Serif SC","STSong","SimSun","Songti SC",serif;
+  background:
+    radial-gradient(ellipse at 20% 10%,rgba(166,58,46,.05),transparent 50%),
+    radial-gradient(ellipse at 85% 90%,rgba(168,131,74,.08),transparent 55%),
+    repeating-linear-gradient(0deg,transparent 0 28px,rgba(43,38,34,.018) 28px 29px),
+    var(--paper);
+  color:var(--ink); min-height:100vh; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:radial-gradient(rgba(43,38,34,.045) 1px,transparent 1px);
+  background-size:5px 5px; opacity:.5;
+}
+#gate{
+  position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(160deg,#241f1a 0%,#33291f 60%,#2b2320 100%);
+  transition:opacity .8s ease, visibility .8s;
+}
+#gate.open{opacity:0; visibility:hidden}
+.gate-box{text-align:center; color:#e8ddc4; padding:24px; max-width:420px; width:92%;
+  animation:fadeUp .9s ease both}
+.gate-seal{
+  width:86px;height:86px;margin:0 auto 26px;border:3px solid var(--cinnabar);
+  border-radius:10px; display:flex;align-items:center;justify-content:center;
+  background:rgba(166,58,46,.12); transform:rotate(-4deg);
+  box-shadow:0 0 0 2px rgba(166,58,46,.25) inset;
+  font-size:36px; color:#e0785f; font-weight:700;
+}
+.gate-box h1{font-size:26px;letter-spacing:.35em;margin-bottom:8px;text-indent:.35em}
+.gate-box .en{font-size:11px;letter-spacing:.45em;color:#9a8d72;margin-bottom:34px;text-indent:.45em}
+.gate-input{
+  width:100%; max-width:260px; padding:14px 18px; text-align:center; font-size:22px;
+  letter-spacing:.6em; text-indent:.3em; background:rgba(244,237,220,.06);
+  border:1px solid #6b5d45; color:#f0e6cd; border-radius:4px; outline:none;
+  font-family:inherit; transition:.3s;
+}
+.gate-input:focus{border-color:var(--gold); background:rgba(244,237,220,.1)}
+.gate-input::placeholder{color:#7d7159;letter-spacing:.2em}
+.gate-btn{
+  display:block; margin:20px auto 0; padding:12px 46px; font-size:16px; letter-spacing:.4em; text-indent:.4em;
+  background:var(--cinnabar); color:#f7efdb; border:none; border-radius:4px; cursor:pointer;
+  font-family:inherit; transition:.25s; box-shadow:0 6px 18px rgba(166,58,46,.35);
+}
+.gate-btn:hover{background:var(--cinnabar2); transform:translateY(-2px)}
+.gate-hint{margin-top:26px;font-size:12px;color:#8a7d63;letter-spacing:.15em}
+.gate-err{margin-top:14px;font-size:13px;color:#e0785f;letter-spacing:.1em; min-height:20px}
+.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+#app{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 18px 90px;display:none}
+#app.show{display:block}
+.side-text{
+  position:fixed; top:50%; font-size:13px; letter-spacing:.55em; color:rgba(43,38,34,.28);
+  writing-mode:vertical-rl; user-select:none; z-index:0;
+}
+.side-text.left{left:max(10px, calc(50% - 560px)); transform:translateY(-50%)}
+.side-text.right{right:max(10px, calc(50% - 560px)); transform:translateY(-50%)}
+@media(max-width:1150px){.side-text{display:none}}
+.hero{padding:70px 0 40px;text-align:center;animation:fadeUp .8s ease both}
+.hero .kicker{font-size:12px;letter-spacing:.5em;color:var(--gold2);text-indent:.5em;margin-bottom:20px}
+.hero h1{font-size:clamp(30px,6vw,48px);letter-spacing:.12em;line-height:1.5;font-weight:700}
+.hero h1 em{font-style:normal;color:var(--cinnabar);position:relative}
+.hero h1 em::after{content:"";position:absolute;left:6%;right:6%;bottom:2px;height:6px;background:rgba(166,58,46,.16);z-index:-1}
+.hero .en{margin-top:16px;font-size:11px;letter-spacing:.42em;color:#9a8d72;text-indent:.42em}
+.divider{display:flex;align-items:center;gap:14px;max-width:560px;margin:34px auto;color:var(--gold)}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
+.divider::after{background:linear-gradient(90deg,var(--line),transparent)}
+.divider span{font-size:16px}
+.hero p.desc{max-width:560px;margin:0 auto;font-size:15px;line-height:2;color:var(--ink2)}
+.feat-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:30px 0 8px}
+.feat{border:1px solid var(--line);background:rgba(255,252,244,.6);padding:7px 14px;border-radius:999px;font-size:12.5px;letter-spacing:.08em;color:var(--ink2)}
+.feat b{color:var(--cinnabar);font-weight:700;margin-right:4px}
+.note-card{
+  max-width:560px;margin:26px auto 0;border:1px dashed var(--line);border-radius:8px;
+  padding:18px 22px;font-size:13px;line-height:2;color:#6f6350;text-align:left;
+  background:rgba(255,252,244,.45);
+}
+.note-card b{color:var(--ink)}
+.start-btn{
+  margin:44px auto 0;display:inline-flex;align-items:center;gap:12px;
+  padding:16px 58px;font-size:17px;letter-spacing:.35em;text-indent:.1em;
+  background:var(--ink);color:var(--paper);border:none;border-radius:4px;cursor:pointer;
+  font-family:inherit;transition:.3s;box-shadow:0 10px 26px rgba(43,38,34,.28);
+}
+.start-btn:hover{background:var(--cinnabar);transform:translateY(-2px);box-shadow:0 14px 30px rgba(166,58,46,.3)}
+.disclaimer{margin-top:34px;font-size:12px;color:#a2957c;letter-spacing:.1em}
+.stage{display:none;animation:fadeUp .6s ease both}
+.stage.on{display:block}
+.stage-head{text-align:center;padding:46px 0 8px}
+.stage-head .step{font-size:12px;letter-spacing:.4em;color:var(--gold2);text-indent:.4em;margin-bottom:12px}
+.stage-head h2{font-size:26px;letter-spacing:.14em}
+.stage-head p{margin-top:12px;font-size:13.5px;color:var(--ink2);letter-spacing:.06em}
+.pref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:680px;margin:34px auto 0}
+@media(max-width:640px){.pref-grid{grid-template-columns:1fr}}
+.pref-card{
+  border:1px solid var(--line);background:rgba(255,252,244,.75);border-radius:10px;
+  padding:28px 18px;text-align:center;cursor:pointer;transition:.28s;
+}
+.pref-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 30px rgba(43,38,34,.12)}
+.pref-card.sel{border-color:var(--cinnabar);background:#fffdf6;box-shadow:0 14px 30px rgba(166,58,46,.14);transform:translateY(-5px)}
+.pref-card .ic{font-size:34px;margin-bottom:12px}
+.pref-card h3{font-size:17px;letter-spacing:.15em;margin-bottom:8px}
+.pref-card p{font-size:12px;color:#8a7d63;line-height:1.9}
+.pref-confirm{margin-top:30px;text-align:center}
+.ghost-btn{
+  padding:12px 42px;font-size:15px;letter-spacing:.3em;text-indent:.1em;border:1px solid var(--ink);
+  background:transparent;color:var(--ink);border-radius:4px;cursor:pointer;font-family:inherit;transition:.25s;
+}
+.ghost-btn:hover{background:var(--ink);color:var(--paper)}
+.quiz-wrap{max-width:620px;margin:10px auto 0}
+.q-meta{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--gold2);letter-spacing:.2em;margin-bottom:10px}
+.q-dim{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);padding:4px 12px;border-radius:999px;background:rgba(255,252,244,.7);color:var(--ink2)}
+.progress{height:5px;background:rgba(43,38,34,.1);border-radius:99px;overflow:hidden;margin-bottom:26px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--cinnabar));border-radius:99px;transition:width .45s ease}
+.q-card{
+  border:1px solid var(--line);background:rgba(255,252,244,.85);border-radius:12px;
+  padding:34px 30px;box-shadow:0 10px 30px rgba(43,38,34,.07);
+}
+.q-title{font-size:19px;line-height:1.9;letter-spacing:.04em;margin-bottom:26px;text-align:center;font-weight:700}
+.opt{
+  display:flex;align-items:flex-start;gap:14px;padding:15px 16px;margin-bottom:12px;
+  border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:.22s;
+  font-size:14.5px;line-height:1.8;color:var(--ink2);background:rgba(255,255,255,.4);
+}
+.opt:hover{border-color:var(--gold);background:#fffdf6;transform:translateX(4px)}
+.opt .key{
+  flex:none;width:26px;height:26px;border:1px solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);margin-top:2px;
+}
+.opt.picked{border-color:var(--cinnabar);background:rgba(166,58,46,.07)}
+.opt.picked .key{background:var(--cinnabar);border-color:var(--cinnabar);color:#fff}
+.q-tip{text-align:center;font-size:12px;color:#a2957c;margin-top:6px;letter-spacing:.1em}
+.result-hero{text-align:center;padding:56px 0 10px;position:relative}
+.result-hero .stamp{
+  display:inline-block;padding:10px 14px;border:2.5px solid var(--cinnabar);border-radius:8px;
+  color:var(--cinnabar);font-size:15px;letter-spacing:.3em;text-indent:.3em;transform:rotate(-3deg);
+  background:rgba(166,58,46,.06);margin-bottom:22px;font-weight:700;
+}
+.result-hero .match-label{font-size:12px;letter-spacing:.4em;color:var(--gold2);text-indent:.4em;margin-bottom:16px}
+.result-name{font-size:clamp(38px,8vw,56px);letter-spacing:.14em;font-weight:700;line-height:1.3}
+.result-name .char{display:inline-block;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.4) rotate(-8deg)}to{opacity:1;transform:none}}
+.result-sub{margin-top:14px;font-size:15px;color:var(--ink2);letter-spacing:.14em}
+.result-pct{
+  margin:26px auto 0;width:150px;height:150px;border-radius:50%;
+  border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle,#fffdf6 55%,rgba(168,131,74,.1));position:relative;
+}
+.result-pct::before{content:"";position:absolute;inset:7px;border:1px dashed var(--line);border-radius:50%}
+.result-pct b{font-size:34px;color:var(--cinnabar);letter-spacing:.02em}
+.result-pct span{font-size:11px;color:var(--gold2);letter-spacing:.2em;margin-top:4px}
+.sec{max-width:640px;margin:0 auto;border-top:1px solid var(--line);padding:36px 6px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px}
+.sec-head .num{font-size:30px;color:var(--gold);font-weight:700}
+.sec-head h3{font-size:19px;letter-spacing:.18em}
+.sec-head .en{margin-left:auto;font-size:10px;letter-spacing:.28em;color:#b3a483}
+.sec p.body{font-size:14.5px;line-height:2.15;color:var(--ink2);letter-spacing:.03em;text-align:justify}
+.bond-tags{display:flex;flex-wrap:wrap;gap:10px}
+.bond-tags span{border:1px solid var(--cinnabar);color:var(--cinnabar);background:rgba(166,58,46,.05);padding:6px 16px;border-radius:999px;font-size:13px;letter-spacing:.1em}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:560px){.tri{grid-template-columns:1fr}}
+.tri .cell{border:1px solid var(--line);border-radius:8px;padding:16px 14px;background:rgba(255,252,244,.7)}
+.tri .cell h4{font-size:13px;letter-spacing:.2em;margin-bottom:10px;color:var(--gold2);display:flex;align-items:center;gap:6px}
+.tri .cell p{font-size:13px;line-height:1.95;color:var(--ink2)}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:640px){.quotes{grid-template-columns:1fr;max-width:300px;margin:0 auto}}
+.quote-card{
+  border:1px solid var(--line);border-radius:8px;background:linear-gradient(180deg,#fffdf6,#f8f1e0);
+  padding:24px 14px;text-align:center;position:relative;box-shadow:0 8px 20px rgba(43,38,34,.06);
+}
+.quote-card::before{content:"「";position:absolute;top:4px;left:10px;font-size:22px;color:var(--gold);opacity:.6}
+.quote-card::after{content:"」";position:absolute;bottom:4px;right:10px;font-size:22px;color:var(--gold);opacity:.6}
+.quote-card .q-text{writing-mode:vertical-rl;margin:0 auto;max-height:180px;font-size:15.5px;letter-spacing:.18em;line-height:2;color:var(--ink)}
+.radar-box{display:flex;justify-content:center;margin-top:6px}
+.legend{display:flex;justify-content:center;gap:26px;margin-top:14px;font-size:12px;color:var(--ink2);letter-spacing:.1em}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.top3{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+.top3 .t{border:1px solid var(--line);border-radius:8px;padding:12px 20px;background:rgba(255,252,244,.75);text-align:center;min-width:120px}
+.top3 .t .rank{font-size:10px;color:var(--gold2);letter-spacing:.25em;margin-bottom:5px}
+.top3 .t .nm{font-size:16px;letter-spacing:.1em}
+.top3 .t .pc{font-size:11px;color:var(--cinnabar);margin-top:4px}
+.result-actions{text-align:center;margin-top:44px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+footer{text-align:center;margin-top:60px;font-size:12px;color:#a2957c;line-height:2;letter-spacing:.08em}
+.seal-end{width:52px;height:52px;margin:20px auto 0;border:2px solid rgba(166,58,46,.5);border-radius:6px;transform:rotate(4deg);
+  display:flex;align-items:center;justify-content:center;color:rgba(166,58,46,.6);font-size:13px;letter-spacing:.1em;font-weight:700}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-box" id="gateBox">
+    <div class="gate-seal">档</div>
+    <h1>前世人物志</h1>
+    <div class="en">FIGURE ATLAS · ANCIENT ARCHIVE</div>
+    <input class="gate-input" id="pwd" type="password" maxlength="4" inputmode="numeric" placeholder="输入四位密钥">
+    <button class="gate-btn" id="gateBtn">开 启 档 案</button>
+    <div class="gate-err" id="gateErr"></div>
+    <div class="gate-hint">本档案受密钥保护 · 通行密钥：1920</div>
+  </div>
+</div>
+
+<div class="side-text left">读史使人明智</div>
+<div class="side-text right">以人为镜可以明得失</div>
+
+<div id="app">
+  <section class="stage on" id="st-home">
+    <div class="hero">
+      <div class="kicker">前 世 人 物 志</div>
+      <h1>你与哪位<em>历史人物</em>相似？</h1>
+      <div class="en">FIGURE ATLAS · ANCIENT ARCHIVE</div>
+      <div class="divider"><span>❖</span></div>
+      <p class="desc">通过一组情境选择，读取你的决断、洞察、表达与担当。系统将从清朝以前的中国历史人物中，为你找出最相似的那一位，并生成一份专属人物档案。</p>
+      <div class="feat-row">
+        <div class="feat"><b>古代群像</b>历代风云人物</div>
+        <div class="feat"><b>男女皆有</b>多元角色</div>
+        <div class="feat"><b>多维分析</b>八维建模</div>
+        <div class="feat"><b>快速完成</b>即时出档案</div>
+      </div>
+      <div class="note-card">
+        <b>测试说明</b>：没有标准答案，请选择最接近真实自己的反应。你的每一次选择，都会直接进入人物能力向量的计算。
+      </div>
+      <button class="start-btn" onclick="goPref()">开 始 测 试</button>
+      <div class="disclaimer">本测试用于趣味性自我探索，不构成心理测评或历史评价。</div>
+    </div>
+  </section>
+
+  <section class="stage" id="st-pref">
+    <div class="stage-head">
+      <div class="step">第 一 步 · 档 案 映 射</div>
+      <h2>选择你更有代入感的人物方向</h2>
+      <p>这只影响最终人物候选范围，不影响答题内容与分数计算。</p>
+    </div>
+    <div class="pref-grid">
+      <div class="pref-card" data-pref="all" onclick="pickPref(this)">
+        <div class="ic">🏛️</div><h3>不限方向</h3>
+        <p>从全部人物中匹配<br>适合心胸开阔的你</p>
+      </div>
+      <div class="pref-card" data-pref="m" onclick="pickPref(this)">
+        <div class="ic">⚔️</div><h3>男性人物</h3>
+        <p>王侯将相 · 谋士文豪<br>从男性历史人物中匹配</p>
+      </div>
+      <div class="pref-card" data-pref="f" onclick="pickPref(this)">
+        <div class="ic">🌸</div><h3>女性人物</h3>
+        <p>巾帼豪杰 · 才女佳人<br>从女性历史人物中匹配</p>
+      </div>
+    </div>
+    <div class="pref-confirm">
+      <button class="ghost-btn" onclick="startQuiz()">开 始 答 题</button>
+    </div>
+  </section>
+
+  <section class="stage" id="st-quiz">
+    <div class="quiz-wrap">
+      <div class="q-meta">
+        <span class="q-dim" id="qDim"></span>
+        <span id="qCount"></span>
+      </div>
+      <div class="progress"><i id="pBar"></i></div>
+      <div class="q-card" id="qCard">
+        <div class="q-title" id="qTitle"></div>
+        <div id="qOpts"></div>
+        <div class="q-tip">选择后自动进入下一题</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="st-result">
+    <div class="result-hero">
+      <div class="stamp">档 案 已 解 封</div>
+      <div class="match-label">你 的 历 史 人 物 匹 配 结 果</div>
+      <div class="result-name" id="rName"></div>
+      <div class="result-sub" id="rSub"></div>
+      <div class="result-pct"><b id="rPct"></b><span>相 似 度</span></div>
+      <div class="top3" id="top3"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">01</span><h3>人物自画像</h3><span class="en">PORTRAIT</span></div>
+      <p class="body" id="rBrief"></p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">02</span><h3>八维能力结构</h3><span class="en">RADAR MAP</span></div>
+      <div class="radar-box"><canvas id="radar" width="340" height="340"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--gold)"></i>你的能力结构</span>
+        <span><i style="background:var(--cinnabar)"></i id="radarFig">TA 的能力结构</span>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">03</span><h3>你与 TA 的共同底色</h3><span class="en">COMMON GROUND</span></div>
+      <p class="body" id="rBond"></p>
+      <div class="bond-tags" id="rBondTags" style="margin-top:16px"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">04</span><h3>现实中的你</h3><span class="en">INTERACTION</span></div>
+      <p class="body"><b style="color:var(--ink)">现实互动方式</b>　<span id="rReality"></span></p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">05</span><h3>性格盲点与风险提醒</h3><span class="en">BLIND SPOTS</span></div>
+      <div class="tri">
+        <div class="cell"><h4>◈ 可能的盲点</h4><p id="rBlind"></p></div>
+        <div class="cell"><h4>◈ 风险提醒</h4><p id="rRisk"></p></div>
+        <div class="cell"><h4>◈ 给你的建议</h4><p id="rAdvice"></p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="num">06</span><h3>你的三句人物台词</h3><span class="en">QUOTES</span></div>
+      <div class="quotes" id="rQuotes"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="ghost-btn" onclick="location.reload()">再 测 一 次</button>
+    </div>
+
+    <footer>
+      本测试用于趣味性自我探索，不构成心理测评或历史评价。<br>
+      人物评价综合自《史记》《资治通鉴》等传世文献之通行观点。
+      <div class="seal-end">前世<br>人物志</div>
+    </footer>
+  </section>
+</div>
+
+<script>
+(function(){
+  var gate=document.getElementById('gate'),pwd=document.getElementById('pwd'),err=document.getElementById('gateErr');
+  function tryOpen(){
+    if(pwd.value.trim()==='1920'){
+      gate.classList.add('open');
+      document.getElementById('app').classList.add('show');
+      document.getElementById('gateBox').style.animation='none';
+      setTimeout(function(){gate.style.display='none';},900);
+    }else{
+      err.textContent='密钥有误，请重试';
+      pwd.classList.add('shake');pwd.value='';
+      setTimeout(function(){pwd.classList.remove('shake');},480);
+      pwd.focus();
+    }
+  }
+  document.getElementById('gateBtn').addEventListener('click',tryOpen);
+  pwd.addEventListener('keydown',function(e){if(e.key==='Enter')tryOpen();});
+  pwd.focus();
+})();
+
+var DIMS=['决断','洞察','谋略','胆识','仁爱','守正','表达','应变'];
+var DIM_ICONS={'决断':'⚔️','洞察':'👁️','谋略':'♟️','胆识':'🐅','仁爱':'🍃','守正':'⚖️','表达':'✒️','应变':'🌊'};
+var FIGURES=[
+{name:'孙武',era:'春秋',title:'兵圣',gender:'m',vec:[8,10,10,7,5,8,6,8],
+ quotes:['知己知彼，百战不殆。','上兵伐谋，其次伐交。','兵者，诡道也。'],
+ brief:'兵学鼻祖，著《孙子兵法》十三篇，辅佐吴国西破强楚。他打的每一场仗都算在前头，追求以最小代价换取最大胜利。',
+ bond:'你们都不打无把握之仗，习惯先把全局算清楚，再从容落子。',
+ reality:'思虑缜密，遇事冷静，是朋友眼里「最靠得住的军师」，交给你的事永远有下文。',
+ blind:'过度理性，容易显得冷淡，让人不敢真正走近。',
+ risk:'算得太细，可能错过稍纵即逝的窗口期。',
+ advice:'偶尔把计划放一边，跟着直觉先走一步。'},
+{name:'范蠡',era:'春秋',title:'越国谋臣 · 陶朱公',gender:'m',vec:[8,10,10,7,7,8,7,10],
+ quotes:['飞鸟尽，良弓藏。','人弃我取，人取我与。','三致千金，三散家财。'],
+ brief:'辅佐越国灭吴后急流勇退，转而经商，三次致富又三次散尽家财，被尊为商圣。',
+ bond:'你们都懂得「进」与「退」的分寸，从不在一棵树上吊死。',
+ reality:'眼光长远，能屈能伸，即使换一条赛道也能从容起盘。',
+ blind:'太会给自己留后路，关键时刻显得不够全力以赴。',
+ risk:'退得太早，可能错过本应属于你的高光时刻。',
+ advice:'认定的事，不妨多坚持一个回合。'},
+{name:'管仲',era:'春秋',title:'齐国国相',gender:'m',vec:[8,9,10,6,8,7,8,8],
+ quotes:['仓廪实而知礼节，衣食足而知荣辱。','十年树木，百年树人。','政之所兴，在顺民心。'],
+ brief:'相齐四十年，通货积财、富国强兵，助齐桓公九合诸侯，一匡天下。',
+ bond:'你们都相信制度与实惠的力量，擅长把宏大理想落到柴米油盐。',
+ reality:'务实通透，懂人心也懂行情，是团队里当之无愧的「定盘星」。',
+ blind:'太务实，容易被纯粹的理想主义者误解为「太现实」。',
+ risk:'凡事习惯讲交换，容易忽略那些不求回报的情义。',
+ advice:'有些付出不图回报，反而收获最大。'},
+{name:'项羽',era:'秦末',title:'西楚霸王',gender:'m',vec:[10,6,6,10,6,7,6,5],
+ quotes:['彼可取而代也。','力拔山兮气盖世。','富贵不归故乡，如衣绣夜行。'],
+ brief:'力能扛鼎，巨鹿之战破釜沉舟九战九捷，分封十八路诸侯，气吞山河。',
+ bond:'你们都是先凭勇气开路、再谈其他的人，最讨厌拖泥带水。',
+ reality:'气场强大，执行力爆表，说到做到，从不轻易许诺。',
+ blind:'容易意气用事，听不进不同意见。',
+ risk:'一鼓作气之后，后劲与退路都容易出问题。',
+ advice:'把「不」说出口之前，先听完对方的理由。'},
+{name:'刘邦',era:'西汉',title:'汉高祖',gender:'m',vec:[8,8,7,7,6,6,7,9],
+ quotes:['大风起兮云飞扬。','安得猛士兮守四方。','运筹帷帐之中，吾不如子房。'],
+ brief:'布衣起家，半生颠沛，善将将而不善将兵，靠知人善任夺得天下。',
+ bond:'你们都敢于承认自己的短板，并大方把舞台交给更专业的人。',
+ reality:'善于聚人，能把一群能人拢成一股绳，是天生的组织者。',
+ blind:'太依赖团队，独自作战时容易露怯。',
+ risk:'用人不疑的反面，是偶尔看不清身边人的算盘。',
+ advice:'信任之外，永远给自己留三分清醒。'},
+{name:'张良',era:'西汉',title:'留侯',gender:'m',vec:[7,10,10,7,7,7,7,9],
+ quotes:['运筹帷帐之中，决胜千里之外。','忍小忿而就大谋。','愿弃人间事，从赤松子游。'],
+ brief:'圯上受书得黄石公真传，辅佐刘邦灭楚兴汉，功成名就后飘然隐退。',
+ bond:'你们都擅长退一步看全局，忍一时风平浪静，赢长远。',
+ reality:'安静的智囊型人物，平时不抢话，关键时刻一句顶一万句。',
+ blind:'藏得太深，容易被误认为没有主见。',
+ risk:'退得太远，机会真正来临时可能接不住。',
+ advice:'该你出场的时候，别谦让。'},
+{name:'韩信',era:'西汉',title:'淮阴侯',gender:'m',vec:[9,8,9,8,5,6,5,9],
+ quotes:['韩信点兵，多多益善。','大丈夫能屈能伸。','狡兔死，良狗烹。'],
+ brief:'国士无双，背水一战定乾坤，被后世誉为「兵仙」，却殒于妇人之手。',
+ bond:'你们都相信专业主义：把一件事练到极致，世界自会为你让路。',
+ reality:'领域里的尖子，遇强更强，压力越大状态越好的大心脏选手。',
+ blind:'技术上满分，人情世故上容易踩坑。',
+ risk:'功劳太大而不懂自敛，容易遭到忌惮。',
+ advice:'把三分心思从「事」移到「人」上。'},
+{name:'霍去病',era:'西汉',title:'冠军侯',gender:'m',vec:[9,7,7,10,5,7,5,8],
+ quotes:['匈奴未灭，何以家为。','顾方略何如耳，不至学古兵法。','饮马瀚海，封狼居胥。'],
+ brief:'十八岁封冠军侯，六击匈奴，饮马瀚海、封狼居胥，二十四岁英年早逝。',
+ bond:'你们都是天生敢闯的人，相信机会是打出来的，不是等出来的。',
+ reality:'行动果断，敢为人先，是天生的开拓者，永远冲在队伍最前面。',
+ blind:'跑得太快，身边人的脚步容易跟不上。',
+ risk:'锋芒过盛，易折，也易招妒。',
+ advice:'每年给自己一次复盘，而不只是复战。'},
+{name:'司马迁',era:'西汉',title:'太史令',gender:'m',vec:[6,9,7,7,7,10,9,6],
+ quotes:['人固有一死，或重于泰山，或轻于鸿毛。','究天人之际，通古今之变，成一家之言。','桃李不言，下自成蹊。'],
+ brief:'遭受宫刑之辱仍忍辱负重，发愤著成《史记》一百三十篇，史家绝唱。',
+ bond:'你们都把「留下点什么」看得比一时的得失更重。',
+ reality:'心里有自己的一杆秤，宁可慢一点，也不肯将就。',
+ blind:'太执着于自己的标尺，活得比别人累。',
+ risk:'把标准定得太高，亲密关系也会变得紧张。',
+ advice:'允许世界有灰度，也允许自己偶尔不完美。'},
+{name:'诸葛亮',era:'三国 · 蜀汉',title:'丞相 · 武乡侯',gender:'m',vec:[6,10,10,5,9,9,8,7],
+ quotes:['鞠躬尽瘁，死而后已。','非淡泊无以明志，非宁静无以致远。','受任于败军之际，奉命于危难之间。'],
+ brief:'隆中一对定三分，六出祁山、五丈原巨星陨落，千古忠臣与智者的代名词。',
+ bond:'你们都把「责任」二字刻在心里，答应了，就负责到底。',
+ reality:'靠谱到近乎固执，是团队的压舱石，也是最让人放心交付后背的人。',
+ blind:'事事亲力亲为，容易透支自己。',
+ risk:'不放心别人，最终会拖垮自己。',
+ advice:'学会把球传出去，信任也是一种领导力。'},
+{name:'曹操',era:'东汉末',title:'魏王',gender:'m',vec:[9,9,9,9,5,6,9,9],
+ quotes:['老骥伏枥，志在千里。','对酒当歌，人生几何。','山不厌高，海不厌深。'],
+ brief:'乱世枭雄，挟天子以令诸侯，横槊赋诗，既是最务实的政治家，也是最浪漫诗人。',
+ bond:'你们都务实又浪漫，做最狠的事，写最真的诗。',
+ reality:'目标感极强，为达目的能屈能伸，手段百出，天生适合开疆拓土。',
+ blind:'目的性太强，容易让人不敢与你深交。',
+ risk:'赢了局面，可能输了人心。',
+ advice:'偶尔让别人赢一次，你会赢得更多。'},
+{name:'刘备',era:'三国 · 蜀汉',title:'昭烈帝',gender:'m',vec:[6,8,6,5,10,8,7,7],
+ quotes:['勿以恶小而为之，勿以善小而不为。','兄弟如手足，妻子如衣服。','孤之有孔明，犹鱼之有水也。'],
+ brief:'织席贩履出身，半生颠沛流离，半生百折不挠，终在成都称帝。',
+ bond:'你们都相信人心换人心，仁义是这世上最长的路。',
+ reality:'重情重义，身边总有一群人愿意死心塌地跟着你。',
+ blind:'太重感情，需要做决断时容易犹豫不决。',
+ risk:'容易被「自己人」拖累，甚至背叛。',
+ advice:'情义要有，底线也要有。'},
+{name:'司马懿',era:'三国 · 魏',title:'太傅',gender:'m',vec:[8,9,9,7,4,7,6,9],
+ quotes:['智者务其实，愚者争虚名。','夫处世之道，亦即应变之术。','肃清万里，总齐八荒。'],
+ brief:'鹰视狼顾之相，隐忍三代，高平陵之变一击夺权，终由子孙完成统一。',
+ bond:'你们都极有耐心，能忍常人不能忍，静静等风来。',
+ reality:'深藏不露，出手时别人才惊觉你早已布局多年。',
+ blind:'藏得太久，真话越来越少，心也越来越孤独。',
+ risk:'别人猜不透你，也就不敢真正用你、信你。',
+ advice:'适当袒露脆弱，反而能赢得真盟友。'},
+{name:'周瑜',era:'三国 · 吴',title:'大都督',gender:'m',vec:[8,8,8,8,6,7,8,7],
+ quotes:['曲有误，周郎顾。','大丈夫处世兮立功名。','雄姿英发，羽扇纶巾。'],
+ brief:'赤壁一炬定三分，精通音律、文武双全，江东人称「美周郎」。',
+ bond:'你们都是全能型选手，做什么都要做得漂亮，输什么都不能输气场。',
+ reality:'能力全面、品味在线，是人群里自带光环的焦点人物。',
+ blind:'好胜心太强，输不起的心态会反噬自己。',
+ risk:'把太多人当作对手，活得很累。',
+ advice:'你唯一的对手，是昨天的自己。'},
+{name:'谢安',era:'东晋',title:'太傅',gender:'m',vec:[7,9,8,8,7,8,7,9],
+ quotes:['安石不出，如苍生何。','小儿辈大破贼。','东山高卧，弈棋谈玄。'],
+ brief:'隐居东山二十年，一出山便主持淝水之战，大破前秦百万大军，围棋如故。',
+ bond:'你们都懂得「静」的力量：越是大事，越要沉住气。',
+ reality:'情绪稳定，是朋友圈里「定海神针」般的存在，泰山崩于前而色不变。',
+ blind:'太淡定，容易被误认为对什么都不上心。',
+ risk:'关键时刻的从容，也可能错过表达热情的时机。',
+ advice:'偶尔让别人看到你也会激动、会失控。'},
+{name:'李世民',era:'唐',title:'唐太宗',gender:'m',vec:[9,9,8,8,8,8,7,8],
+ quotes:['以人为镜，可以明得失。','水能载舟，亦能覆舟。','疾风知劲草，板荡识诚臣。'],
+ brief:'十八岁随父起兵，虚怀纳谏，开创贞观之治，被各族尊为「天可汗」。',
+ bond:'你们都渴望干成一番大事业，并且真心愿意听逆耳之言。',
+ reality:'天生领袖气质，敢拍板也敢认错，队伍愿意跟着你向前冲。',
+ blind:'目标太大，容易忽略身边人的小情绪。',
+ risk:'走得太快太猛，身体往往会先抗议。',
+ advice:'磨刀不误砍柴工，休息也是前进的一部分。'},
+{name:'魏徵',era:'唐',title:'名臣 · 郑国公',gender:'m',vec:[7,9,7,8,7,10,9,6],
+ quotes:['兼听则明，偏信则暗。','以铜为镜，可以正衣冠。','居安思危，戒奢以俭。'],
+ brief:'一生谏言二百余事，哪怕触怒龙颜也照说不误，连唐太宗都敬畏三分。',
+ bond:'你们眼里揉不得沙子，看到问题一定要说出来，哪怕得罪人。',
+ reality:'难得的诤友，敢说真话，你身边的人都因为你的存在而少走很多弯路。',
+ blind:'刀子嘴容易伤人，哪怕你说的是对的。',
+ risk:'话说得太直，功劳容易被「不会做人」四个字抵消。',
+ advice:'真话也要裹上糖衣，效果反而会翻倍。'},
+{name:'包拯',era:'北宋',title:'龙图阁直学士',gender:'m',vec:[7,8,6,8,7,10,7,6],
+ quotes:['关节不到，有阎罗包老。','清心为治本，直道是身谋。','后世子孙犯赃，不得归葬祖茔。'],
+ brief:'权知开封府，铁面无私，断案如神，皇亲国戚犯法照样铡下无情。',
+ bond:'你们都信奉「规矩」二字：自己先做到，然后才要求别人。',
+ reality:'黑白分明，是单位里最让人放心的把关人，没有灰色地带。',
+ blind:'非黑即白，容易在现实世界的灰色地带受伤。',
+ risk:'得罪人而不自知，晋升路上暗礁密布。',
+ advice:'原则之外，给自己留一条人情缓冲带。'},
+{name:'苏轼',era:'北宋',title:'文学家 · 东坡居士',gender:'m',vec:[7,9,7,7,8,7,10,9],
+ quotes:['一蓑烟雨任平生。','人生如逆旅，我亦是行人。','人间有味是清欢。'],
+ brief:'一生三贬，越贬越豁达，诗词文书画无一不绝，把苦难过成了滋味。',
+ bond:'你们都有一种「化苦为乐」的本事，再难的局也能品出几分滋味。',
+ reality:'乐观通透，走到哪都能交到朋友、找到乐子，是气氛的制造者。',
+ blind:'太豁达，容易被误解为「不上进、不认真」。',
+ risk:'嘴上没有把门的，才华太露，容易招妒。',
+ advice:'幽默是盔甲，别让它变成长矛。'},
+{name:'岳飞',era:'南宋',title:'名将 · 鄂王',gender:'m',vec:[8,7,7,10,9,10,6,6],
+ quotes:['精忠报国。','莫等闲、白了少年头，空悲切。','文官不爱钱，武官不惜死，天下太平矣。'],
+ brief:'背上刺「尽忠报国」，郾城大捷令金兵叹「撼山易，撼岳家军难」。',
+ bond:'你们都把信念放在生死之上，认定的事九头牛也拉不回。',
+ reality:'高度自律、正直不阿，是圈子里公认「最有原则的人」。',
+ blind:'太刚直，不懂迂回，容易遭到暗算。',
+ risk:'尽忠的对象若不值得，结局往往令人唏嘘。',
+ advice:'忠诚要配上判断力，方向错了，努力反而成为枷锁。'},
+{name:'文天祥',era:'南宋',title:'丞相 · 信国公',gender:'m',vec:[7,7,6,9,8,10,8,6],
+ quotes:['人生自古谁无死，留取丹心照汗青。','天地有正气，杂然赋流形。','臣心一片磁针石，不指南方不肯休。'],
+ brief:'兵败被俘，拒降三年，狱中作《正气歌》明志，从容就义。',
+ bond:'你们身上都有一种「宁为玉碎」的决绝与浪漫。',
+ reality:'重气节、轻利益，平日里不显山露水，关键时刻让人肃然起敬。',
+ blind:'是非观太绝对，世界在你眼里只有忠奸两色。',
+ risk:'不懂妥协的人，常常倒在黎明之前。',
+ advice:'活下来，有时也是另一种胜利。'},
+{name:'王阳明',era:'明',title:'心学宗师',gender:'m',vec:[8,9,8,8,8,9,8,7],
+ quotes:['知行合一。','破山中贼易，破心中贼难。','此心光明，亦复何言。'],
+ brief:'龙场悟道，立德立功立言三不朽，平叛如同闲庭信步，心学流传五百余年。',
+ bond:'你们都向内求索：先修自己，再谈改变世界。',
+ reality:'自我驱动力极强，不卷别人，只卷昨天的自己。',
+ blind:'对自己要求太高，容易陷入精神内耗。',
+ risk:'修心太勤，现实中的动作可能偏慢。',
+ advice:'想明白就去做，答案永远在路上。'},
+{name:'武则天',era:'唐',title:'女皇',gender:'f',vec:[10,9,9,10,5,6,9,8],
+ quotes:['日月当空，照临下土。','明者远见于未萌，智者避危于无形。','欲安其家，必先安于国。'],
+ brief:'中国历史上唯一的女皇，开殿试、设武举，政启开元、治宏贞观。',
+ bond:'你们都野心勃勃，从不因为别人的眼光而压低自己的目标。',
+ reality:'天生的掌权者，目标清晰、手段果决，走到哪都是核心人物。',
+ blind:'太强势，身边人容易变成「下属」而不是「朋友」。',
+ risk:'高处不胜寒，登顶的路上孤独，也易招非议。',
+ advice:'柔软不是示弱，是更高明的掌控。'},
+{name:'王昭君',era:'西汉',title:'和亲使者',gender:'f',vec:[6,8,7,8,9,8,8,8],
+ quotes:['一去紫台连朔漠，独留青冢向黄昏。','千载琵琶作胡语，分明怨恨曲中论。','画图省识春风面，环珮空归夜月魂。'],
+ brief:'以一介宫人身份出塞和亲，换来汉匈之间长达六十年的边境和平。',
+ bond:'你们都有大局观，愿意为了更大的安宁，承担属于个人的那份委屈。',
+ reality:'温和而有韧性，关键时刻挺身而出的牺牲精神令人敬佩。',
+ blind:'太顾全大局，自己的需求常常被排到队尾。',
+ risk:'长期的自我压抑，终有一天会迎来反弹。',
+ advice:'照顾好自己，也是一种责任。'},
+{name:'蔡文姬',era:'东汉',title:'才女',gender:'f',vec:[6,8,6,7,8,8,9,8],
+ quotes:['胡笳十八拍，拍拍皆血泪。','人生几何时，怀忧终年岁。','我生之初尚无为，我生之后汉祚衰。'],
+ brief:'博学能文，乱世被掳匈奴十二年，归汉后凭记忆续写父亲遗篇。',
+ bond:'你们都情感浓烈，擅长把经历酿成文字，再酿成力量。',
+ reality:'感受力极强，共情是你的天赋，也是你的负担。',
+ blind:'情绪太多，行动容易被拖慢。',
+ risk:'沉湎于过去，会错过正在到来的春天。',
+ advice:'把故事讲完，然后翻页。'},
+{name:'班昭',era:'东汉',title:'史学家 · 曹大家',gender:'f',vec:[6,9,8,5,8,9,8,7],
+ quotes:['谦让恭敬，先人后己。','妇言，不必辩口利辞也。','兄亡续史，以成《汉书》。'],
+ brief:'继兄班固续成《汉书》，担任宫廷女师，史称「曹大家」，东汉第一才女。',
+ bond:'你们都严谨自持，相信水滴石穿的积累，而非一夜成名。',
+ reality:'细致可靠，交给你的事永远不会掉在地上，是隐形的顶梁柱。',
+ blind:'太守规矩，偶尔显得无趣和紧绷。',
+ risk:'过分在意名声与他人的评价，活得拘束。',
+ advice:'偶尔「不守规矩」一次，天不会塌。'},
+{name:'卓文君',era:'西汉',title:'才女',gender:'f',vec:[8,8,7,9,7,7,9,8],
+ quotes:['愿得一心人，白头不相离。','皑如山上雪，皎若云间月。','闻君有两意，故来相决绝。'],
+ brief:'夜奔相如、当垆卖酒，一曲《白头吟》既挽回爱情，也保全了尊严。',
+ bond:'你们都敢爱敢恨：面包可以自己挣，爱情必须纯粹。',
+ reality:'独立敢闯，感情里拿得起、放得下，从不委曲求全。',
+ blind:'眼里不揉沙，感情来得快，去得也快。',
+ risk:'一时冲动下的决定，代价往往不小。',
+ advice:'决绝之前，先给自己一晚的冷静期。'},
+{name:'谢道韫',era:'东晋',title:'才女',gender:'f',vec:[7,9,6,7,7,8,9,7],
+ quotes:['未若柳絮因风起。','何可一日无此君？','神情散朗，有林下风气。'],
+ brief:'一句「未若柳絮因风起」名动江左，乱兵当前执剑护夫，凛然不可侵犯。',
+ bond:'你们都才情外溢，优雅是你们的武器，也是你们的盔甲。',
+ reality:'谈吐出众、举止有度，人群中自带光环，让人过目不忘。',
+ blind:'眼光太高，容易曲高和寡。',
+ risk:'恃才傲物，容易忽略普通人的善意。',
+ advice:'向下兼容不是降格，是慈悲。'},
+{name:'冼夫人',era:'南朝梁陈隋',title:'岭南圣母 · 谯国夫人',gender:'f',vec:[7,9,8,8,9,9,7,8],
+ quotes:['我事三代主，唯用一好心。','忠贞报国，大义灭亲。','怀集百越，保境安民。'],
+ brief:'历梁、陈、隋三朝，平定叛乱、促进统一，岭南人尊其为「圣母」。',
+ bond:'你们都把「信义」当作毕生事业，一诺重于千金。',
+ reality:'团队的顶梁柱，局面越乱你越稳，所有人都会回头找你。',
+ blind:'对别人太负责，对自己太苛刻。',
+ risk:'一身担太多事，最后累垮的只有自己。',
+ advice:'把担子分出去，信任也是一种领导力。'},
+{name:'花木兰',era:'北朝',title:'传奇女将',gender:'f',vec:[8,7,7,10,8,8,5,7],
+ quotes:['万里赴戎机，关山度若飞。','将军百战死，壮士十年归。','双兔傍地走，安能辨我是雄雌。'],
+ brief:'代父从军十二年，出生入死无人识破女儿身，忠孝两全的民间传奇。',
+ bond:'你们都不服「不行」两个字，用行动把质疑声一句句压下去。',
+ reality:'扛事不喊累，是家人和朋友心里的主心骨。',
+ blind:'习惯独自硬扛，求助对你来说等于示弱。',
+ risk:'长期硬撑，身心都会亮起红灯。',
+ advice:'说出「我需要帮助」，一点也不丢人。'},
+{name:'穆桂英',era:'北宋',title:'杨门女将',gender:'f',vec:[9,8,8,10,7,7,6,7],
+ quotes:['我不挂帅谁挂帅，我不出征谁出征。','辕门外三声炮，如同雷震。','大破天门阵。'],
+ brief:'大破天门阵名震天下，年过半百再度挂帅出征，杨门女将之首。',
+ bond:'你们都天生带胆，越是没人敢接的担子，越要亲自试一试。',
+ reality:'雷厉风行，敢拍板、敢担责，难事到不了你这里会变简单。',
+ blind:'太要强的性子，容易把「求助」拒之门外。',
+ risk:'冲锋太快，后勤和团队的脚步可能跟不上。',
+ advice:'善用配角，主角才能唱完全场。'},
+{name:'李清照',era:'宋',title:'词人 · 易安居士',gender:'f',vec:[7,9,7,8,7,9,10,8],
+ quotes:['生当作人杰，死亦为鬼雄。','物是人非事事休，欲语泪先流。','莫道不销魂，帘卷西风，人比黄花瘦。'],
+ brief:'婉约词宗，赌书泼茶，南渡之后笔力转刚，被誉为「千古第一才女」。',
+ bond:'你们都把敏感炼成才华，把心事写成作品。',
+ reality:'细腻通透，看问题总能一语中的，直觉准得惊人。',
+ blind:'想太多，夜里容易精神内耗。',
+ risk:'情绪上头时说的话、做的决定，事后常常后悔。',
+ advice:'把多愁善感升级成洞察力，而不是消耗。'},
+{name:'平阳昭公主',era:'唐',title:'巾帼统帅',gender:'f',vec:[8,8,7,9,7,8,6,7],
+ quotes:['勒兵七万，威震关中。','所过秋毫无犯。','以军礼葬，前后部羽葆鼓吹。'],
+ brief:'唐高祖之女，聚义军七万助父定天下，以军礼下葬，中国历史上唯一。',
+ bond:'你们都敢在大事上挺身而出，从不把自己当配角。',
+ reality:'巾帼不让须眉，事业心与生俱来，注定不会只站在聚光灯外。',
+ blind:'太好强，不肯在任何人面前露怯。',
+ risk:'扛得越多，被期待得越多，最终压垮的是自己。',
+ advice:'允许自己不完美，完美本身就是一种陷阱。'}
+];
+
+var QUESTIONS=[
+{d:'决断',t:'大军压境，城中粮草只够十日。你的第一反应是？',opts:[
+ {t:'开城决战，胜败在此一举',w:{'项羽':3,'曹操':1,'霍去病':1}},
+ {t:'坚守待援，同时遣死士突围求援',w:{'岳飞':2,'诸葛亮':1,'冼夫人':1}},
+ {t:'按兵不动，看清局势再落子',w:{'司马懿':2,'范蠡':1,'张良':1}},
+ {t:'连夜召集众人，议定最优方案再动手',w:{'刘备':1,'管仲':1,'诸葛亮':1,'张良':1}}]},
+{d:'决断',t:'你定下的规矩，有人请求通融。你会？',opts:[
+ {t:'规矩就是规矩，谁都不例外',w:{'包拯':3,'魏徵':1}},
+ {t:'小事可通融，原则问题绝不让步',w:{'李世民':1,'刘备':1,'冼夫人':1}},
+ {t:'规矩若不合时宜，就该修改',w:{'管仲':2,'苏轼':1,'曹操':1}},
+ {t:'看这个人值不值得破例',w:{'刘邦':2,'司马懿':1}}]},
+{d:'决断',t:'必须二选一、两边都有损失时，你倾向于？',opts:[
+ {t:'快刀斩乱麻，两害相权取其轻',w:{'曹操':2,'武则天':2}},
+ {t:'尽量求全，不到最后不放弃任何一边',w:{'刘备':3,'冼夫人':1}},
+ {t:'舍小保大，保住根本才是担当',w:{'李世民':2,'范蠡':1}},
+ {t:'换个角度想想，寻找两全的可能',w:{'苏轼':1,'张良':1,'谢安':1}}]},
+{d:'洞察',t:'判断一个人值不值得深交，你最看重？',opts:[
+ {t:'危难时刻他如何取舍',w:{'曹操':1,'魏徵':1,'武则天':1,'司马迁':1}},
+ {t:'听其言、观其行，日久见人心',w:{'诸葛亮':2,'班昭':1,'王阳明':1}},
+ {t:'举手投足间的细节',w:{'司马懿':2,'苏轼':1,'李清照':1}},
+ {t:'第一眼的气场，直觉不会骗人',w:{'项羽':2,'霍去病':1,'谢道韫':1}}]},
+{d:'洞察',t:'面对众说纷纭的建议，你会？',opts:[
+ {t:'兼听则明，偏信则暗，全部听完再定',w:{'魏徵':2,'李世民':1}},
+ {t:'只听最懂行的那一两个人的',w:{'张良':2,'班昭':1}},
+ {t:'意见只是参考，拍板必须自己来',w:{'王阳明':1,'武则天':1,'曹操':1}},
+ {t:'更在意沉默的大多数在想什么',w:{'管仲':2,'苏轼':1}}]},
+{d:'洞察',t:'关于时代大势，你更相信？',opts:[
+ {t:'顺之者昌，不逆天而行',w:{'范蠡':2,'张良':1}},
+ {t:'大势是人造的，我也可以造',w:{'曹操':2,'武则天':1,'李世民':1}},
+ {t:'看不清就冷眼旁观，等风来',w:{'司马懿':2,'李清照':1}},
+ {t:'大势与我无关，把眼前事做到极致',w:{'岳飞':1,'司马迁':1,'班昭':1}}]},
+{d:'谋略',t:'做一件大事，你的节奏是？',opts:[
+ {t:'谋定后动，走一步看三步',w:{'诸葛亮':2,'孙武':1,'张良':1}},
+ {t:'兵贵神速，先下手为强',w:{'韩信':2,'霍去病':1,'穆桂英':1}},
+ {t:'以正合、以奇胜，正奇相生',w:{'孙武':1,'韩信':1,'曹操':1}},
+ {t:'不争一时，十年磨一剑',w:{'司马迁':1,'王阳明':1,'班昭':1}}]},
+{d:'谋略',t:'竞争之中，你更喜欢？',opts:[
+ {t:'知己知彼，专打对方软肋',w:{'孙武':1,'张良':1,'司马懿':1}},
+ {t:'光明正大地赢，还要赢得漂亮',w:{'岳飞':2,'周瑜':1,'穆桂英':1}},
+ {t:'不战而屈人之兵，才是上策',w:{'诸葛亮':1,'孙武':1,'管仲':1}},
+ {t:'把蛋糕做大，不必你死我活',w:{'管仲':2,'苏轼':1,'李世民':1}}]},
+{d:'谋略',t:'资源有限，你会怎么分配？',opts:[
+ {t:'集中全部力量，打一个点',w:{'韩信':2,'项羽':1,'霍去病':1}},
+ {t:'广撒网，东边不亮西边亮',w:{'苏轼':1,'刘备':1,'卓文君':1}},
+ {t:'先投资人、攒团队',w:{'刘邦':2,'刘备':1,'冼夫人':1}},
+ {t:'永远留后手，备好 Plan B',w:{'司马懿':1,'范蠡':1,'张良':1,'班昭':1}}]},
+{d:'胆识',t:'面对一件从没做过的事，你会？',opts:[
+ {t:'怕什么，先闯了再说',w:{'霍去病':1,'项羽':1,'花木兰':2}},
+ {t:'找做过的人取完经再上',w:{'张良':1,'王阳明':1,'班昭':1}},
+ {t:'小步快跑，先试错再迭代',w:{'苏轼':1,'管仲':1}},
+ {t:'不打无准备之仗，准备好了再说',w:{'诸葛亮':1,'岳飞':1,'孙武':1}}]},
+{d:'胆识',t:'面对强权施压，你的姿态是？',opts:[
+ {t:'宁折不弯，当面顶回去',w:{'魏徵':2,'包拯':1,'李清照':1}},
+ {t:'面上不争，底线绝不退',w:{'司马迁':2,'司马懿':1,'王昭君':1}},
+ {t:'以柔克刚，曲线达成目的',w:{'张良':2,'冼夫人':1,'卓文君':1}},
+ {t:'用实力让对方闭嘴',w:{'韩信':1,'霍去病':1,'曹操':1,'穆桂英':1}}]},
+{d:'胆识',t:'关于冒险，你的信条是？',opts:[
+ {t:'富贵险中求，该押就押',w:{'曹操':1,'韩信':1,'卓文君':2}},
+ {t:'只押输得起的，见好就收',w:{'范蠡':2,'管仲':1}},
+ {t:'稳字当头，能不冒险就不冒险',w:{'诸葛亮':1,'包拯':1,'班昭':1}},
+ {t:'别人不敢的时候，正是我的机会',w:{'武则天':1,'王阳明':1,'司马迁':1,'霍去病':1}}]},
+{d:'仁爱',t:'遇到身处困境的人，你会？',opts:[
+ {t:'能帮就帮，举手之劳',w:{'刘备':2,'苏轼':1,'冼夫人':1}},
+ {t:'授人以渔，帮他真正站起来',w:{'王阳明':2,'管仲':1}},
+ {t:'从制度上解决，让弱者不再弱',w:{'管仲':1,'李世民':1,'包拯':1}},
+ {t:'先安顿好自己身边的人',w:{'蔡文姬':1,'穆桂英':1,'花木兰':1}}]},
+{d:'仁爱',t:'对待恩怨，你更倾向于？',opts:[
+ {t:'以德报怨，化干戈为玉帛',w:{'刘备':1,'苏轼':1,'王昭君':1}},
+ {t:'恩怨分明，有恩报恩',w:{'韩信':2,'曹操':1,'卓文君':1}},
+ {t:'一笑泯恩仇，向前看',w:{'苏轼':1,'范蠡':1,'谢安':1}},
+ {t:'先记在心里，关键时刻见分晓',w:{'司马懿':2,'武则天':1}}]},
+{d:'仁爱',t:'被人误解时，你的选择是？',opts:[
+ {t:'解释一次，信不信由你',w:{'岳飞':1,'王阳明':1}},
+ {t:'不解释，用行动证明',w:{'司马迁':2,'韩信':1,'花木兰':1}},
+ {t:'一笑了之，懂的人自然懂',w:{'苏轼':1,'李清照':1,'谢道韫':1}},
+ {t:'必须掰扯明白，写下来讲清楚',w:{'魏徵':1,'班昭':1,'司马迁':1}}]},
+{d:'守正',t:'利益与原则冲突时，你？',opts:[
+ {t:'原则问题，一分不让',w:{'包拯':2,'魏徵':1,'文天祥':1}},
+ {t:'取大义，舍小利',w:{'岳飞':1,'文天祥':1,'冼夫人':1}},
+ {t:'底线之上，可以商量',w:{'刘邦':1,'苏轼':1,'谢道韫':1}},
+ {t:'原则对不对，让结果来检验',w:{'曹操':1,'管仲':1,'李世民':1}}]},
+{d:'守正',t:'无人监督的时候，你会？',opts:[
+ {t:'慎独，没人看更要自律',w:{'王阳明':2,'司马迁':1,'班昭':1}},
+ {t:'规矩照守，但也懂得灵活',w:{'张良':1,'曹操':1,'李清照':1}},
+ {t:'按制度来，一板一眼',w:{'包拯':1,'班昭':1,'魏徵':1}},
+ {t:'视情况而定，随机应变',w:{'韩信':1,'范蠡':1,'卓文君':1}}]},
+{d:'守正',t:'关于说真话，你？',opts:[
+ {t:'直笔写真相，得罪人也要写',w:{'司马迁':2,'魏徵':1}},
+ {t:'真相要讲，方式方法更要讲',w:{'张良':1,'诸葛亮':1,'班昭':1}},
+ {t:'大局为重，话到嘴边留半句',w:{'司马懿':1,'管仲':1,'武则天':1}},
+ {t:'只说确凿的，没证据不乱讲',w:{'苏轼':1,'包拯':1,'李清照':1}}]},
+{d:'表达',t:'大型公开场合发言，你？',opts:[
+ {t:'出口成章，场子越大越兴奋',w:{'苏轼':2,'曹操':1,'谢道韫':1}},
+ {t:'少说多听，一开口就要在点子上',w:{'张良':1,'司马懿':1,'诸葛亮':1}},
+ {t:'善用比喻和故事，让人爱听',w:{'苏轼':1,'管仲':1,'卓文君':1}},
+ {t:'数据与事实说话，不整虚的',w:{'魏徵':2,'班昭':1,'孙武':1}}]},
+{d:'表达',t:'关于写作与记录，你？',opts:[
+ {t:'每日复盘，记录成习惯',w:{'司马迁':1,'王阳明':1,'班昭':1}},
+ {t:'有感而发，不吐不快',w:{'苏轼':1,'李清照':2}},
+ {t:'写给人看，传播自己的思考',w:{'曹操':1,'班昭':1,'王阳明':1}},
+ {t:'写给自己看，用来整理思绪',w:{'诸葛亮':1,'蔡文姬':1,'司马迁':1}}]},
+{d:'表达',t:'要说服一个人，你最常用？',opts:[
+ {t:'动之以情',w:{'刘备':2,'蔡文姬':1}},
+ {t:'晓之以理',w:{'魏徵':1,'诸葛亮':1,'班昭':1}},
+ {t:'诱之以利，算清利害',w:{'张良':1,'曹操':1,'管仲':1}},
+ {t:'身先士卒，做给他看',w:{'岳飞':2,'冼夫人':1,'花木兰':1}}]},
+{d:'应变',t:'计划突然被打乱，你会？',opts:[
+ {t:'顺势而变，计划本来就是用来打破的',w:{'韩信':1,'曹操':1,'苏轼':1}},
+ {t:'立刻启动备用方案',w:{'司马懿':1,'诸葛亮':1,'班昭':1}},
+ {t:'稳住阵脚，先弄清发生了什么',w:{'张良':2,'包拯':1}},
+ {t:'借题发挥，把坏事变成好事',w:{'苏轼':1,'刘邦':1,'谢安':1}}]},
+{d:'应变',t:'突发危机当前，你更可能？',opts:[
+ {t:'临危不乱，越是大事越冷静',w:{'谢安':2,'诸葛亮':1,'冼夫人':1}},
+ {t:'把大家拢到一起，共渡难关',w:{'刘备':1,'冼夫人':1,'穆桂英':1}},
+ {t:'快速决断，先控制局面再说',w:{'曹操':1,'韩信':1,'武则天':1}},
+ {t:'保存实力，该退就退',w:{'范蠡':2,'刘邦':1,'司马懿':1}}]},
+{d:'应变',t:'环境剧变、需要转型时，你会？',opts:[
+ {t:'到哪都能活，本事在自己身上',w:{'范蠡':1,'苏轼':1,'卓文君':1}},
+ {t:'深耕一行，做到极致',w:{'司马迁':1,'王阳明':1,'李清照':1}},
+ {t:'带着旧经验，快速学新东西',w:{'班昭':1,'李清照':1,'张良':1}},
+ {t:'以不变应万变',w:{'司马懿':1,'包拯':1,'岳飞':1}}]}
+];
+
+var PREF='all',QI=0,SCORES={},USER_VEC=[0,0,0,0,0,0,0,0];
+function showStage(id){
+  var stages=document.querySelectorAll('.stage');
+  for(var i=0;i<stages.length;i++)stages[i].classList.remove('on');
+  document.getElementById(id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goPref(){showStage('st-pref');}
+function pickPref(el){
+  var cards=document.querySelectorAll('.pref-card');
+  for(var i=0;i<cards.length;i++)cards[i].classList.remove('sel');
+  el.classList.add('sel');PREF=el.getAttribute('data-pref');
+}
+function startQuiz(){
+  QI=0;SCORES={};USER_VEC=[0,0,0,0,0,0,0,0];
+  showStage('st-quiz');renderQ();
+}
+function renderQ(){
+  var q=QUESTIONS[QI];
+  document.getElementById('qDim').innerHTML=DIM_ICONS[q.d]+' '+q.d+'方式';
+  document.getElementById('qCount').textContent='第 '+(QI+1)+' / '+QUESTIONS.length+' 题';
+  document.getElementById('pBar').style.width=(QI/QUESTIONS.length*100)+'%';
+  document.getElementById('qTitle').textContent=q.t;
+  var box=document.getElementById('qOpts');box.innerHTML='';
+  var keys=['甲','乙','丙','丁'];
+  q.opts.forEach(function(o,i){
+    var d=document.createElement('div');d.className='opt';
+    d.innerHTML='<span class="key">'+keys[i]+'</span><span>'+o.t+'</span>';
+    d.onclick=function(){pick(i,d);};
+    box.appendChild(d);
+  });
+  var card=document.getElementById('qCard');
+  card.style.animation='none';card.offsetHeight;card.style.animation='fadeUp .45s ease both';
+}
+function pick(idx,el){
+  var opts=document.querySelectorAll('#qOpts .opt');
+  for(var i=0;i<opts.length;i++)opts[i].style.pointerEvents='none';
+  el.classList.add('picked');
+  var w=QUESTIONS[QI].opts[idx].w;
+  for(var k in w){SCORES[k]=(SCORES[k]||0)+w[k];}
+  setTimeout(function(){
+    if(QI<QUESTIONS.length-1){QI++;renderQ();}
+    else{document.getElementById('pBar').style.width='100%';finish();}
+  },380);
+}
+function finish(){
+  var cands=FIGURES.filter(function(f){return PREF==='all'||f.gender===PREF;});
+  var best=null,bestS=-1,ranked=[];
+  var total=0,i;
+  for(i=0;i<FIGURES.length;i++)total+=SCORES[FIGURES[i].name]||0;
+  for(i=0;i<8;i++){
+    var s=0;for(var j=0;j<FIGURES.length;j++)s+=(SCORES[FIGURES[j].name]||0)*FIGURES[j].vec[i];
+    USER_VEC[i]=total?s/total:5;
+  }
+  cands.forEach(function(f){
+    var s=SCORES[f.name]||0;ranked.push({f:f,s:s});
+    if(s>bestS){bestS=s;best=f;}
+  });
+  if(!best){best=cands[0];}
+  ranked.sort(function(a,b){return b.s-a.s;});
+  renderResult(best,ranked);
+}
+function cosSim(a,b){
+  var dot=0,na=0,nb=0;
+  for(var i=0;i<8;i++){dot+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}
+  return dot/(Math.sqrt(na)*Math.sqrt(nb)||1);
+}
+function pct(fig){
+  var c=cosSim(USER_VEC,fig.vec);
+  var p=86+Math.round((c-0.82)/0.18*11);
+  return Math.max(86,Math.min(97,p));
+}
+function topDims(v){
+  var idx=[0,1,2,3,4,5,6,7];
+  idx.sort(function(a,b){return v[b]-v[a];});
+  return idx.slice(0,3).map(function(i){return DIMS[i];});
+}
+function renderResult(fig,ranked){
+  showStage('st-result');
+  var nameEl=document.getElementById('rName');
+  nameEl.innerHTML='';
+  fig.name.split('').forEach(function(ch,i){
+    var sp=document.createElement('span');sp.className='char';
+    sp.style.animationDelay=(i*0.12)+'s';sp.textContent=ch;nameEl.appendChild(sp);
+  });
+  document.getElementById('rSub').textContent=fig.era+' · '+fig.title;
+  document.getElementById('rPct').textContent=pct(fig)+'%';
+  document.getElementById('rBrief').textContent=fig.brief;
+  document.getElementById('rBond').textContent=fig.bond;
+  document.getElementById('rReality').textContent=fig.reality;
+  document.getElementById('rBlind').textContent=fig.blind;
+  document.getElementById('rRisk').textContent=fig.risk;
+  document.getElementById('rAdvice').textContent=fig.advice;
+  document.getElementById('radarFig').textContent=fig.name+' 的能力结构';
+  var bt=document.getElementById('rBondTags');bt.innerHTML='';
+  topDims(USER_VEC).forEach(function(d){
+    var s=document.createElement('span');s.textContent='共同强项 · '+d;bt.appendChild(s);
+  });
+  var qb=document.getElementById('rQuotes');qb.innerHTML='';
+  fig.quotes.forEach(function(q){
+    var c=document.createElement('div');c.className='quote-card';
+    c.innerHTML='<div class="q-text">'+q+'</div>';qb.appendChild(c);
+  });
+  var t3=document.getElementById('top3');t3.innerHTML='';
+  ranked.slice(0,3).forEach(function(r,i){
+    if(r.s<=0)return;
+    var d=document.createElement('div');d.className='t';
+    d.innerHTML='<div class="rank">第'+'一二三'[i]+'相似</div><div class="nm">'+r.f.name+'</div><div class="pc">相似度 '+pct(r.f)+'%</div>';
+    t3.appendChild(d);
+  });
+  setTimeout(function(){drawRadar(fig);},350);
+}
+function drawRadar(fig){
+  var cv=document.getElementById('radar');
+  var dpr=window.devicePixelRatio||1;
+  var size=340;
+  cv.width=size*dpr;cv.height=size*dpr;
+  cv.style.width=size+'px';cv.style.height=size+'px';
+  var ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  var cx=size/2,cy=size/2+8,R=118,n=8;
+  var pt=function(i,v){
+    var a=-Math.PI/2+i*2*Math.PI/n;
+    return [cx+Math.cos(a)*R*v/10,cy+Math.sin(a)*R*v/10];
+  };
+  ctx.clearRect(0,0,size,size);
+  for(var g=1;g<=5;g++){
+    ctx.beginPath();
+    for(var i=0;i<=n;i++){var p=pt(i%8,g*2);i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+    ctx.strokeStyle='rgba(43,38,34,.1)';ctx.lineWidth=1;ctx.stroke();
+  }
+  for(i=0;i<n;i++){
+    var p1=pt(i,0),p2=pt(i,10);
+    ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);
+    ctx.strokeStyle='rgba(43,38,34,.14)';ctx.stroke();
+    var lp=pt(i,12.4);
+    ctx.font='13px "Noto Serif SC",serif';
+    ctx.fillStyle='#4a4238';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(DIMS[i],lp[0],lp[1]);
+  }
+  function poly(vec,color,fill,dash){
+    ctx.beginPath();
+    for(var i=0;i<=n;i++){var p=pt(i%n,vec[i%n]);i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    ctx.setLineDash(dash||[]);
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();ctx.setLineDash([]);
+    for(var j=0;j<n;j++){var q=pt(j,vec[j]);ctx.beginPath();ctx.arc(q[0],q[1],2.6,0,7);ctx.fillStyle=color;ctx.fill();}
+  }
+  poly(fig.vec,'#a63a2e','rgba(166,58,46,.07)',[6,4]);
+  poly(USER_VEC,'#a8834a','rgba(168,131,74,.16)',[]);
+}
+</script>
+</body>
+</html>
